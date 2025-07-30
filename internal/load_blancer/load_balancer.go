@@ -1,6 +1,7 @@
 package loadbalancer
 
 import (
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -52,9 +53,10 @@ type loadBalancer struct {
 }
 
 func NewLoadBalancer(
-	host string, port int, targets []*backend.SimpleHTTPServer, alg Algorithm,
+	host string, port int,
+	targets []*backend.SimpleHTTPServer,
+	alg Algorithm,
 ) (*loadBalancer, error) {
-
 	hdl, err := NewLoadBalancerHandler(alg, targets)
 	if err != nil {
 		return nil, err
@@ -78,7 +80,7 @@ func NewLoadBalancer(
 func (lb *loadBalancer) Start() error {
 	// Start HTTP server in a goroutine
 	go func() {
-		if err := lb.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := lb.server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Error().Err(err).Msg("failed to start load balancer")
 		}
 	}()

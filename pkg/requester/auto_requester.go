@@ -31,7 +31,7 @@ func (r *requester) Start(fn DoRequestCallback) {
 	log.Println("[INFO] press Ctrl + C to stop the app")
 }
 
-// applyConfig will set default value for config when it missing
+// applyConfig will set default value for config when it missing.
 func (r *requester) applyConfig() {
 	if r.config.NumOfRequest == 0 {
 		r.config.NumOfRequest = 10

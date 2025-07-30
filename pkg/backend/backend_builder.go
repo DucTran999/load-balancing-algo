@@ -18,6 +18,10 @@ const (
 	DefaultBackendWeight  = 2
 )
 
+var (
+	ErrBuildBackend = errors.New("setup backend failed after max retries")
+)
+
 type backendBuilder struct {
 	numOfBackends int
 	backends      []*SimpleHTTPServer
@@ -107,7 +111,7 @@ func (b *backendBuilder) setupBackend(id int) (*SimpleHTTPServer, error) {
 		}
 	}
 
-	return nil, errors.New("setup backend failed after max retries")
+	return nil, ErrBuildBackend
 }
 
 // waitForServerReady checks if a server on the given port is ready within 5 seconds.
