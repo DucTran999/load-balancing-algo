@@ -17,6 +17,7 @@ type weightedRoundRobin struct {
 	currentWeight int
 	currentIndex  int
 	proxyCache    sync.Map
+	mutex         sync.Mutex
 }
 
 func NewWeightedRoundRobinAlg(targets []*backend.SimpleHTTPServer) (*weightedRoundRobin, error) {
@@ -34,9 +35,10 @@ func NewWeightedRoundRobinAlg(targets []*backend.SimpleHTTPServer) (*weightedRou
 	wrr := &weightedRoundRobin{
 		backends:   targets,
 		proxyCache: sync.Map{},
+		mutex:      sync.Mutex{},
 	}
 
-	wrr.setupBackend()
+	wrr.electInitialBackend()
 
 	return wrr, nil
 }
@@ -67,6 +69,9 @@ func (lb *weightedRoundRobin) getOrCreateProxy(target *url.URL) *httputil.Revers
 }
 
 func (lb *weightedRoundRobin) getNextBackend() url.URL {
+	lb.mutex.Lock()
+	defer lb.mutex.Lock()
+
 	if lb.currentWeight == 0 {
 		lb.currentIndex = lb.calculateNextIndex()
 		lb.currentWeight = lb.backends[lb.currentIndex].GetWeight()
@@ -77,7 +82,10 @@ func (lb *weightedRoundRobin) getNextBackend() url.URL {
 	return *nextBackend.GetUrl()
 }
 
-func (lb *weightedRoundRobin) setupBackend() {
+func (lb *weightedRoundRobin) electInitialBackend() {
+	lb.mutex.Lock()
+	defer lb.mutex.Unlock()
+
 	// Sort backends by weight in descending order
 	sort.SliceStable(lb.backends, func(i, j int) bool {
 		return lb.backends[i].GetWeight() > lb.backends[j].GetWeight()
