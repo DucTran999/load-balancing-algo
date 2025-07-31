@@ -70,7 +70,7 @@ func (lb *weightedRoundRobin) getOrCreateProxy(target *url.URL) *httputil.Revers
 
 func (lb *weightedRoundRobin) getNextBackend() url.URL {
 	lb.mutex.Lock()
-	defer lb.mutex.Lock()
+	defer lb.mutex.Unlock()
 
 	if lb.currentWeight == 0 {
 		lb.currentIndex = lb.calculateNextIndex()
