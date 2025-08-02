@@ -7,7 +7,7 @@ import (
 	"github.com/rs/zerolog"
 )
 
-func RunSourceIPhashApp(logger zerolog.Logger) {
+func RunSourceIPHashApp(logger zerolog.Logger) {
 	// Initialize the backend builder and configure number of backend servers
 	backendBuilder := backend.NewBackendBuilder(logger)
 	backendBuilder.SetNumberOfBackends(5)
