@@ -81,6 +81,7 @@ func (lb *lowestLatencyAlg) getNextBackend() *url.URL {
 		}
 	}
 
+	log.Println("--------------------------------------------------------")
 	log.Printf(
 		"[INFO] backend latency: %v, select: %d, latency: %v\n",
 		backendLatency, backendIdx, minLatency,

@@ -44,6 +44,7 @@ func (lb *sourceIPHash) ForwardRequest(w http.ResponseWriter, r *http.Request) {
 	nextUrl := lb.getNextBackend(ip)
 
 	// Log the next URL to which the request will be forwarded
+	log.Println("---------------------------------------------------------")
 	log.Printf(
 		"[INFO] source ip: %s -> load balancer forwarding request to: %v\n",
 		ip, nextUrl.String(),

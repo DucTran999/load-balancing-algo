@@ -1,6 +1,8 @@
 package app
 
 import (
+	"log"
+
 	loadbalancer "github.com/DucTran999/load-balancing-algo/internal/load_blancer"
 	"github.com/DucTran999/load-balancing-algo/internal/tools"
 	"github.com/DucTran999/load-balancing-algo/pkg/backend"
@@ -8,6 +10,8 @@ import (
 )
 
 func RunRoundRobinApp(logger zerolog.Logger) {
+	log.Println("[INFO] running round-robin app")
+
 	// Initialize the backend builder and configure number of backend servers
 	backendBuilder := backend.NewBackendBuilder(logger)
 	backendBuilder.SetNumberOfBackends(5)

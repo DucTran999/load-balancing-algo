@@ -37,6 +37,7 @@ func NewLeastConnectionAlg(targets []*backend.SimpleHTTPServer) (*leastConnectio
 func (lc *leastConnectionAlg) ForwardRequest(w http.ResponseWriter, r *http.Request) {
 	url := lc.getNextBackend()
 
+	log.Println("-----------------------------------------------------------------")
 	// Log the next URL to which the request will be forwarded
 	log.Printf("[INFO] load balancer forwarding request to: %v\n", url.String())
 

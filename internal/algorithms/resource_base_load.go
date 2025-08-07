@@ -82,6 +82,7 @@ func (lb *resourceBaseLoadAlg) getNextBackend() *url.URL {
 		}
 	}
 
+	log.Println("----------------------------------------------------")
 	log.Printf(
 		"[INFO] backend connections: %v, select: %d, CPU load: %.2f \n",
 		backendCPUs, backendIdx, minCPULoad,

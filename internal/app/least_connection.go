@@ -1,6 +1,8 @@
 package app
 
 import (
+	"log"
+
 	loadbalancer "github.com/DucTran999/load-balancing-algo/internal/load_blancer"
 	"github.com/DucTran999/load-balancing-algo/internal/tools"
 	"github.com/DucTran999/load-balancing-algo/pkg/backend"
@@ -8,6 +10,8 @@ import (
 )
 
 func RunLeastConnectionApp(logger zerolog.Logger) {
+	log.Println("[INFO] running least connection algorithm app")
+
 	// Initialize the backend builder and configure number of backend servers
 	backendBuilder := backend.NewBackendBuilder(logger)
 	backendBuilder.SetNumberOfBackends(5)
