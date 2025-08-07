@@ -20,6 +20,14 @@ func main() {
 		app.RunRoundRobinApp(logger)
 	case "wr":
 		app.RunWeightRoundRobinApp(logger)
+	case "ih":
+		app.RunSourceIPHashApp(logger)
+	case "lc":
+		app.RunLeastConnectionApp(logger)
+	case "ll":
+		app.RunLowestLatencyApp(logger)
+	case "rb":
+		app.RunResourceBaseApp(logger)
 	default:
 		logger.Fatal().Msg("[ERROR] app not available")
 	}

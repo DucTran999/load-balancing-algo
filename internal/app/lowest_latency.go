@@ -9,8 +9,8 @@ import (
 	"github.com/rs/zerolog"
 )
 
-func RunRoundRobinApp(logger zerolog.Logger) {
-	log.Println("[INFO] running round-robin app")
+func RunLowestLatencyApp(logger zerolog.Logger) {
+	log.Println("[INFO] running lowest latency algorithm app")
 
 	// Initialize the backend builder and configure number of backend servers
 	backendBuilder := backend.NewBackendBuilder(logger)
@@ -22,8 +22,8 @@ func RunRoundRobinApp(logger zerolog.Logger) {
 		logger.Fatal().Msgf("failed when build backends: %v", err)
 	}
 
-	// Create a new load balancer on localhost:8080 using the backends and round-robin algorithm
-	lb, err := loadbalancer.NewLoadBalancer("localhost", 8080, backends, loadbalancer.RoundRobin)
+	// Create a new load balancer on localhost:8080 using the backends and using lowest latency algorithm
+	lb, err := loadbalancer.NewLoadBalancer("localhost", 8080, backends, loadbalancer.LowestLatency)
 	if err != nil {
 		logger.Fatal().Msgf("failed to init loadbalancer: %v", err)
 	}

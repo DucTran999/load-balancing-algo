@@ -46,6 +46,8 @@ func NewWeightedRoundRobinAlg(targets []*backend.SimpleHTTPServer) (*weightedRou
 func (lb *weightedRoundRobin) ForwardRequest(w http.ResponseWriter, r *http.Request) {
 	nextUrl := lb.getNextBackend()
 
+	log.Println("-----------------------------------------------------------------")
+
 	// Log the next URL to which the request will be forwarded
 	log.Printf("[INFO] load balancer forwarding request to: %v\n", nextUrl.String())
 

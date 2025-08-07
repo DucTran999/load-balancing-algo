@@ -1,4 +1,4 @@
-package loadbalancer
+package algorithms
 
 import (
 	"log"
@@ -6,17 +6,18 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"sync"
+	"time"
 
 	"github.com/DucTran999/load-balancing-algo/internal/errs"
 	"github.com/DucTran999/load-balancing-algo/pkg/backend"
 )
 
-type resourceBaseLoadAlg struct {
+type lowestLatencyAlg struct {
 	backends   []*backend.SimpleHTTPServer
 	proxyCache sync.Map
 }
 
-func NewResourceBaseLoadAlg(targets []*backend.SimpleHTTPServer) (*resourceBaseLoadAlg, error) {
+func NewLowestLatencyAlg(targets []*backend.SimpleHTTPServer) (*lowestLatencyAlg, error) {
 	if len(targets) == 0 {
 		return nil, errs.ErrNoTargetServersFound
 	}
@@ -28,15 +29,15 @@ func NewResourceBaseLoadAlg(targets []*backend.SimpleHTTPServer) (*resourceBaseL
 		}
 	}
 
-	rbl := &resourceBaseLoadAlg{
+	lr := &lowestLatencyAlg{
 		backends:   targets,
 		proxyCache: sync.Map{},
 	}
 
-	return rbl, nil
+	return lr, nil
 }
 
-func (lb *resourceBaseLoadAlg) ForwardRequest(w http.ResponseWriter, r *http.Request) {
+func (lb *lowestLatencyAlg) ForwardRequest(w http.ResponseWriter, r *http.Request) {
 	nextUrl := lb.getNextBackend()
 
 	// Log the next URL to which the request will be forwarded
@@ -49,7 +50,7 @@ func (lb *resourceBaseLoadAlg) ForwardRequest(w http.ResponseWriter, r *http.Req
 	proxy.ServeHTTP(w, r)
 }
 
-func (lb *resourceBaseLoadAlg) getOrCreateProxy(target *url.URL) *httputil.ReverseProxy {
+func (lb *lowestLatencyAlg) getOrCreateProxy(target *url.URL) *httputil.ReverseProxy {
 	key := target.String()
 	if proxy, ok := lb.proxyCache.Load(key); ok {
 		return proxy.(*httputil.ReverseProxy)
@@ -61,30 +62,29 @@ func (lb *resourceBaseLoadAlg) getOrCreateProxy(target *url.URL) *httputil.Rever
 	return proxy
 }
 
-func (lb *resourceBaseLoadAlg) getNextBackend() *url.URL {
-	// Only one backend server return it intermediately
+func (lb *lowestLatencyAlg) getNextBackend() *url.URL {
 	if len(lb.backends) == 1 {
 		return lb.backends[0].GetUrl()
 	}
 
-	// Lookup the backends got lowest cpu load
-	minCPULoad := lb.backends[0].GetCPULoad()
+	minLatency := lb.backends[0].Latency()
 	backendIdx := 0
-	backendCPUs := []float64{minCPULoad}
+	backendLatency := []time.Duration{minLatency}
 
 	for idx := 1; idx < len(lb.backends); idx++ {
 		backend := lb.backends[idx]
-		backendCPUs = append(backendCPUs, backend.GetCPULoad())
+		backendLatency = append(backendLatency, backend.Latency())
 
-		if minCPULoad > lb.backends[idx].GetCPULoad() {
-			minCPULoad = backend.GetCPULoad()
+		if minLatency > backend.Latency() {
+			minLatency = backend.Latency()
 			backendIdx = idx
 		}
 	}
 
+	log.Println("--------------------------------------------------------")
 	log.Printf(
-		"[INFO] backend connections: %v, select: %d, CPU load: %.2f \n",
-		backendCPUs, backendIdx, minCPULoad,
+		"[INFO] backend latency: %v, select: %d, latency: %v\n",
+		backendLatency, backendIdx, minLatency,
 	)
 
 	return lb.backends[backendIdx].GetUrl()
