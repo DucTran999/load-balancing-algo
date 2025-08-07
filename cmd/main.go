@@ -26,6 +26,8 @@ func main() {
 		app.RunLeastConnectionApp(logger)
 	case "ll":
 		app.RunLowestLatencyApp(logger)
+	case "rb":
+		app.RunResourceBaseApp(logger)
 	default:
 		logger.Fatal().Msg("[ERROR] app not available")
 	}
